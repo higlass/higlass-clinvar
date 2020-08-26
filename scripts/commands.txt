@@ -1,0 +1,7 @@
+
+
+
+
+clodius aggregate bedfile --chromsizes-filename hg38.txt --delimiter $'\t' --importance-column 6 clinvar_20200824.bed 
+
+python manage.py ingest_tileset --filename data/clinvar_20200824_v1.beddb --filetype beddb --datatype bedlike --uid clinvar_20200824_v1
