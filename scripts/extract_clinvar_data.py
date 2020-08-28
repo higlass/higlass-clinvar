@@ -3,6 +3,9 @@
 import vcf
 import csv
 
+from random import seed
+from random import random
+
 # Input/Output file names (need to be in same folder)
 # Clinvar file
 clinvar_file = 'clinvar_20200824.vcf'
@@ -14,7 +17,7 @@ output_file = 'clinvar_20200824.bed'
 #variants_data = allel.read_vcf(clinvar_file, fields='*')
 variants_data = vcf.Reader(open(clinvar_file, 'r'))
 
-
+seed(1)
 
 
 # extracted info keys
@@ -119,10 +122,11 @@ for record in variants_data:
     #print(record)
     data_clean = {
         'chr': 'chr' + record.CHROM, 
-        'start': record.POS, 
-        'end': record.POS, 
+        'start': +record.POS, 
+        'end': +record.POS+1, 
         'ref': record.REF,
         'alt': record.ALT[0].sequence if record.ALT[0] else ".",
+        'importance': gold_stars + random(),
         'gold_stars': gold_stars,
         'significance': significance,
         'significance_conf': ','.join(record.INFO['CLNSIGCONF']) if "CLNSIGCONF" in record.INFO else ".",

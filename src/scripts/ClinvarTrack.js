@@ -1,4 +1,5 @@
 import slugid from "slugid";
+import { isValidElement } from "react";
 
 const ClinvarTrack = (HGC, ...args) => {
   if (!new.target) {
@@ -24,56 +25,136 @@ const ClinvarTrack = (HGC, ...args) => {
       this.options = options;
       this.initOptions();
 
-      this.initSignificanceLevels();
-
       this.offsetTop = 10;
 
-      console.log(this.significanceLevels);
+      this.initSignificanceLevels();
+
     }
 
     initTile(tile) {
-      tile.rectGraphics = new HGC.libraries.PIXI.Graphics();
+      tile.lollipopsGraphics = new HGC.libraries.PIXI.Graphics();
       tile.bgGraphics = new HGC.libraries.PIXI.Graphics();
       //tile.rectMaskGraphics = new HGC.libraries.PIXI.Graphics();
 
       tile.graphics.addChild(tile.bgGraphics);
-      tile.graphics.addChild(tile.rectGraphics);
+      tile.graphics.addChild(tile.lollipopsGraphics);
       //tile.graphics.addChild(tile.rectMaskGraphics);
 
       //tile.rectGraphics.mask = tile.rectMaskGraphics;
       tile.clinVarData = this.interpretFieldsData(tile.tileData);
+      tile.rectsForMouseOver = [];
 
-      console.log(tile);
+      const bounds = this.getBoundsOfTile(tile);
+      tile.tileMinX = bounds[0];
+      tile.tileMaxX = bounds[1];
 
       tile.initialized = true;
     }
 
-    interpretFieldsData(td){
-
+    interpretFieldsData(td) {
       const clinVarData = [];
 
       td.forEach((ts) => {
-        
-        const chrom = ts.fields[0];
-        const posRel = +ts.fields[1];
-        const posAbs = ts.xStart;
-        const ref = ts.fields[3];
-        const alt = ts.fields[4];
-        const goldStars = +ts.fields[5];
-        const significance = ts.fields[6];
-        const significanceConf = ts.fields[7];
-        const variantType = ts.fields[8];
-        const origin = +ts.fields[9];
-        const molecularConsequence = ts.fields[10];
-        const diseaseName = ts.fields[11];
-        const hgvs = ts.fields[12];
+        const significance = ts.fields[7].replace("/", "_").toLowerCase();
+        let significancesToBeDrawn = [significance];
+        let numReports = [1];
 
+        if (significance === "conflicting_interpretations_of_pathogenicity") {
+          significancesToBeDrawn = [];
+          numReports = [];
+          ts.fields[8].split(",").forEach((sig) => {
+            const pos1 = sig.indexOf("(");
+            const pos2 = sig.indexOf(")");
+            significancesToBeDrawn.push(
+              sig.substr(0, pos1).replace("/", "_").toLowerCase()
+            );
+            numReports.push(+sig.substr(pos1 + 1, pos2 - pos1 - 1));
+          });
+        }
 
-        clinVarData.push()
+        for (var i = 0; i < significancesToBeDrawn.length; i++) {
+          const entry = {
+            chrom: ts.fields[0],
+            posRel: +ts.fields[1],
+            posAbs: ts.xStart,
+            ref: ts.fields[3],
+            alt: ts.fields[4],
+            importance: ts.fields[5],
+            goldStars: +ts.fields[6],
+            significance: significance, // represents keys in this.significance
+            significanceDisplay: ts.fields[7].replace(/_/g, " "),
+            significanceToBeDrawn: significancesToBeDrawn[i],
+            significanceConf: ts.fields[8],
+            variantType: ts.fields[9],
+            origin: +ts.fields[10],
+            molecularConsequence: ts.fields[11],
+            diseaseName: ts.fields[12],
+            hgvs: ts.fields[13],
+            numReports: numReports[i], // This is the number in significanceConfs, it is 1 for not conflicting_interpretations_of_pathogenicity
+            drawOrder: this.significanceLevels[significancesToBeDrawn[i]]
+              .drawOrder,
+            horizontalShift: 0, // will be used in case there are two reports for the same variant
+          };
+
+          clinVarData.push(entry);
+        }
       });
 
-      return clinVarData;
+      const clinVarDataSorted = clinVarData.sort((a, b) =>
+        a.posAbs > b.posAbs ? 1 : -1
+      );
+      const entriesThatPotentiallyRequireShift = {};
 
+      clinVarDataSorted.forEach((data, index) => {
+        if (index === 0) return;
+
+        if (data.posAbs === clinVarDataSorted[index - 1].posAbs) {
+
+          if (!entriesThatPotentiallyRequireShift[data.posAbs]) {
+            entriesThatPotentiallyRequireShift[data.posAbs] = [];
+            entriesThatPotentiallyRequireShift[data.posAbs].push({
+              index: index - 1,
+              significanceToBeDrawn:
+                clinVarDataSorted[index - 1].significanceToBeDrawn,
+            });
+          }
+
+          entriesThatPotentiallyRequireShift[data.posAbs].push({
+            index: index,
+            significanceToBeDrawn: data.significanceToBeDrawn,
+          });
+        }
+      });
+
+      Object.keys(entriesThatPotentiallyRequireShift).forEach((posAbs) => {
+        // Group each array of object by significanceToBeDrawn
+        // if they have the same posAbs but not the same significance, no shift is needed
+        const grouped = entriesThatPotentiallyRequireShift[posAbs].reduce(
+          function (h, obj) {
+            h[obj.significanceToBeDrawn] = (
+              h[obj.significanceToBeDrawn] || []
+            ).concat(obj);
+            return h;
+          },
+          {}
+        );
+
+        Object.keys(grouped).forEach((significanceToBeDrawn) => {
+          const group = grouped[significanceToBeDrawn];
+          if (group.length <= 1) return; // no shift required
+
+          group.forEach((itemToShift, groupInd) => {
+            clinVarDataSorted[itemToShift.index].horizontalShift = Math.trunc(
+              groupInd - group.length / 2
+            );
+          });
+        });
+
+      });
+
+      clinVarData.sort((a, b) => (a.drawOrder > b.drawOrder ? 1 : -1));
+
+      return clinVarData;
     }
 
     getLabelTextSprite(str) {
@@ -92,68 +173,92 @@ const ClinvarTrack = (HGC, ...args) => {
 
     initSignificanceLevels() {
       const pathogenic = {
-        offsetY: 0 * this.options.levelDistance,
+        offsetY: 0 * this.options.levelDistance + this.offsetTop,
         label: "Pathogenic",
         labelVisible: true,
+        color: colorToHex(this.options.significanceColors["pathogenic"]),
         sprite: this.getLabelTextSprite("Pathogenic"),
+        drawOrder: 1,
       };
 
       const pathogenic_likely_pathogenic = {
-        offsetY: 0.5 * this.options.levelDistance,
+        offsetY: 0.5 * this.options.levelDistance + this.offsetTop,
         label: "Pathogenic / Likely pathogenic",
         labelVisible: false,
+        color: colorToHex(
+          this.options.significanceColors["pathogenic_likely_pathogenic"]
+        ),
         sprite: this.getLabelTextSprite("Pathogenic / Likely pathogenic"),
+        drawOrder: 3,
       };
 
       const likely_pathogenic = {
-        offsetY: 1 * this.options.levelDistance,
+        offsetY: 1 * this.options.levelDistance + this.offsetTop,
         label: "Likely pathogenic",
         labelVisible: true,
+        color: colorToHex(this.options.significanceColors["likely_pathogenic"]),
         sprite: this.getLabelTextSprite("Likely pathogenic"),
+        drawOrder: 5,
       };
 
       const uncertain_significance = {
-        offsetY: 2 * this.options.levelDistance,
+        offsetY: 2 * this.options.levelDistance + this.offsetTop,
         label: "Uncertain significance",
         labelVisible: true,
+        color: colorToHex(
+          this.options.significanceColors["uncertain_significance"]
+        ),
         sprite: this.getLabelTextSprite("Uncertain significance"),
+        drawOrder: 7,
       };
 
       const likely_benign = {
-        offsetY: 3 * this.options.levelDistance,
+        offsetY: 3 * this.options.levelDistance + this.offsetTop,
         label: "Likely benign",
         labelVisible: true,
+        color: colorToHex(this.options.significanceColors["likely_benign"]),
         sprite: this.getLabelTextSprite("Likely benign"),
+        drawOrder: 6,
       };
 
       const benign_likely_benign = {
-        offsetY: 3.5 * this.options.levelDistance,
+        offsetY: 3.5 * this.options.levelDistance + this.offsetTop,
         label: "Benign / Likely benign",
         labelVisible: false,
+        color: colorToHex(
+          this.options.significanceColors["benign_likely_benign"]
+        ),
         sprite: this.getLabelTextSprite("Benign / Likely benign"),
+        drawOrder: 4,
       };
 
       const benign = {
-        offsetY: 4 * this.options.levelDistance,
+        offsetY: 4 * this.options.levelDistance + this.offsetTop,
         label: "Benign",
         labelVisible: true,
+        color: colorToHex(this.options.significanceColors["benign"]),
         sprite: this.getLabelTextSprite("Benign"),
+        drawOrder: 2,
       };
 
       const risk_factor = {
-        offsetY: 4 * this.options.levelDistance,
+        offsetY: 4 * this.options.levelDistance + this.offsetTop,
         label: "Risk factor",
         labelVisible: false,
+        color: colorToHex(this.options.significanceColors["risk_factor"]),
         sprite: this.getLabelTextSprite("Risk factor"),
+        drawOrder: 0,
       };
 
       const conflicting_interpretations_of_pathogenicity = {
         offsetY: null,
         label: "Conflicting interpretations of pathogenicity",
         labelVisible: false,
+        color: colorToHex("#0000ff"),
         sprite: this.getLabelTextSprite(
           "Conflicting interpretations of pathogenicity"
         ),
+        drawOrder: -1,
       };
 
       this.significanceLevels = {
@@ -194,7 +299,6 @@ const ClinvarTrack = (HGC, ...args) => {
     rerender(options, force) {
       const strOptions = JSON.stringify(options);
       if (!force && strOptions === this.prevOptions) return;
-
       this.options = options;
       this.initOptions();
 
@@ -205,6 +309,8 @@ const ClinvarTrack = (HGC, ...args) => {
       this.visibleAndFetchedTiles().forEach((tile) => {
         this.renderTile(tile);
       });
+
+      //this.draw();
     }
 
     // renderMask(tile) {
@@ -225,27 +331,26 @@ const ClinvarTrack = (HGC, ...args) => {
     //   tile.rectMaskGraphics.drawRect(x, y, width, height);
     // }
 
+    drawTile(tile) {}
+
     renderTile(tile) {
       if (!tile || !tile.initialized) return;
 
       // store the scale at while the tile was drawn at so that
       // we only resize it when redrawing
-      tile.drawnAtScale = this._xScale.copy();
-      tile.rectGraphics.removeChildren();
-      tile.rectGraphics.clear();
-      tile.bgGraphics.removeChildren();
-      tile.bgGraphics.clear();
+      //tile.drawnAtScale = this._xScale.copy();
 
-      
-      this.drawTileBackground(tile);
-      this.drawLollipops(tile);
-      console.log(tile)
+      //this.drawTileBackground(tile);
+      //this.drawLollipops(tile);
+      //console.log(tile)
       //this.renderMask(tile);
     }
 
     draw() {
+      this.zoomLevel = this.calculateZoomLevel();
 
       this.visibleAndFetchedTiles().forEach((tile) => {
+        this.drawTileBackground(tile);
         this.drawLollipops(tile);
       });
 
@@ -253,20 +358,49 @@ const ClinvarTrack = (HGC, ...args) => {
     }
 
     drawLollipops(tile) {
-      const td = tile.tileData;
+      tile.lollipopsGraphics.removeChildren();
+      tile.lollipopsGraphics.clear();
+      tile.lollipopsGraphics.alpha = this.zoomLevel == this.maxZoom ? 1.0 : 0.5;
+      tile.rectsForMouseOver = [];
 
-      td.forEach((ts) => {
-        const pos = ts.xStart;
-        //console.log(pos, ts.fields)
+      const slus = this.significanceLevels["uncertain_significance"];
+      const yZero = slus.offsetY + slus.sprite.height / 2;
+      const circleRadius = 4;
+      const circleDiameter = 2 * circleRadius;
+
+      tile.clinVarData.forEach((cvEntry) => {
+
+        const sl = this.significanceLevels[cvEntry.significanceToBeDrawn];
+        tile.lollipopsGraphics.beginFill(sl.color);
+        const posX = this._xScale(cvEntry.posAbs);
+        const posXshifted = posX + cvEntry.horizontalShift * circleDiameter;
+        const posY = sl.offsetY + sl.sprite.height / 2 + 0.5;
+
+        tile.lollipopsGraphics.drawCircle(posXshifted, posY, circleRadius);
+
+        tile.lollipopsGraphics.drawRect(posX - 0.5, yZero, 1, posY - yZero);
+
+        tile.rectsForMouseOver.push({
+          data: cvEntry,
+          rect: [
+            posXshifted - circleRadius,
+            posXshifted + circleRadius,
+            posY - circleRadius,
+            posY + circleRadius,
+          ],
+        });
+
       });
-      console.log(td.length)
-
-      tile.rectGraphics.beginFill(this.colors["black"]);
-      tile.rectGraphics.drawRect(100, 10, 100, 10);
     }
 
+    // This should be drawn only once (and not based on tiles but the whole track)
     drawTileBackground(tile) {
-      
+      tile.bgGraphics.removeChildren();
+      tile.bgGraphics.clear();
+
+      const minX = this._xScale(tile.tileMinX);
+      const maxX = this._xScale(tile.tileMaxX);
+
       tile.bgGraphics.beginFill(this.colors["lightgrey"]);
 
       Object.keys(this.significanceLevels).forEach((key) => {
@@ -274,15 +408,16 @@ const ClinvarTrack = (HGC, ...args) => {
         if (!sl.labelVisible) return;
 
         tile.bgGraphics.drawRect(
-          0,
-          sl.offsetY + this.offsetTop + sl.sprite.height / 2,
-          this.dimensions[0],
+          minX,
+          sl.offsetY + sl.sprite.height / 2,
+          maxX - minX, //this.dimensions[0],
           1
         );
       });
     }
 
     drawLabels() {
+
       this.pForeground.clear();
       this.pForeground.removeChildren();
       let maxLabelWidth = 0;
@@ -307,7 +442,7 @@ const ClinvarTrack = (HGC, ...args) => {
         if (!sl.labelVisible) return;
         const sprite = sl.sprite;
         sprite.position.x = 0;
-        sprite.position.y = sl.offsetY + this.offsetTop;
+        sprite.position.y = sl.offsetY;
 
         this.pForeground.addChild(sprite);
 
@@ -320,9 +455,26 @@ const ClinvarTrack = (HGC, ...args) => {
       });
     }
 
+    zoomedY(yPos, kMultiplier) {}
+
+    movedY(dY) {}
+
+    getBoundsOfTile(tile) {
+
+      // get the bounds of the tile
+      const tileId = +tile.tileId.split(".")[1];
+      const zoomLevel = +tile.tileId.split(".")[0]; //track.zoomLevel does not always seem to be up to date
+      const tileWidth = +this.tilesetInfo.max_width / 2 ** zoomLevel;
+      const tileMinX = this.tilesetInfo.min_pos[0] + tileId * tileWidth; // abs coordinates
+      const tileMaxX = this.tilesetInfo.min_pos[0] + (tileId + 1) * tileWidth;
+
+      return [tileMinX, tileMaxX];
+    }
+
     /** cleanup */
     destroyTile(tile) {
-      tile.rectGraphics.destroy();
+      tile.bgGraphics.destroy();
+      tile.lollipopsGraphics.destroy();
       //tile.rectMaskGraphics.destroy();
       tile.graphics.destroy();
       tile = null;
@@ -331,6 +483,7 @@ const ClinvarTrack = (HGC, ...args) => {
     calculateZoomLevel() {
       // offset by 2 because 1D tiles are more dense than 2D tiles
       // 1024 points per tile vs 256 for 2D tiles
+      if (!this.tilesetInfo) return;
 
       const xZoomLevel = tileProxy.calculateZoomLevel(
         this._xScale,
@@ -357,7 +510,39 @@ const ClinvarTrack = (HGC, ...args) => {
     }
 
     getMouseOverHtml(trackX, trackY) {
-      return "";
+      if (!this.tilesetInfo) {
+        return "";
+      }
+
+      const point = [trackX, trackY];
+
+      for (const tile of this.visibleAndFetchedTiles()) {
+
+        for (let i = 0; i < tile.rectsForMouseOver.length; i++) {
+          const rect = tile.rectsForMouseOver[i].rect;
+          const data = tile.rectsForMouseOver[i].data;
+          if (this.isPointInRectangle(rect, point)) {
+            let goldStarString = "";
+            for(var i=0; i<data.goldStars; i++){
+              goldStarString += "<span style='color:#ebdc00'>&#9733;</span>"
+            }
+            for(var i=0; i<4-data.goldStars; i++){
+              goldStarString += "<span style='color:#bdbdbd'>&#9734;</span>"
+            }
+            return `
+                <div style='text-align: center'>
+                  <div><b>${data.chrom}:${data.posRel}</b></div>
+                  <div>${data.ref} &#8658; ${data.alt}</div>
+                  <div>Clinvar review status: ${goldStarString}</div>
+                  <div>Clinical significance: <b>${data.significanceDisplay}</b></div>
+                </div>
+              `;
+          }
+        }
+
+      }
+
+
     }
 
     exportSVG() {
@@ -429,12 +614,23 @@ ClinvarTrack.config = {
     "fontFamily",
     "labelTextColor",
     "levelDistance",
+    "significanceColors",
   ],
   defaultOptions: {
     fontSize: 10,
     fontFamily: "Arial",
     labelTextColor: "#888888",
     levelDistance: 20,
+    significanceColors: {
+      pathogenic: "#ff0000",
+      pathogenic_likely_pathogenic: "#ff3838",
+      likely_pathogenic: "#a80000",
+      uncertain_significance: "#808080",
+      likely_benign: "#009600",
+      benign_likely_benign: "#00c900",
+      benign: "#00ff00",
+      risk_factor: "#bdbdbd",
+    },
   },
 };
 
