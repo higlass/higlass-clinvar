@@ -20,56 +20,6 @@
   "coordSystem": "",
   "coordSystem2": ""
  },
- "clinvar_20200824_v5.22.33979": [
-  {
-   "xStart": 34794607,
-   "xEnd": 34794608,
-   "chrOffset": 0,
-   "importance": 1.7033527070697196,
-   "uid": "UmXJ7t7XTHS8C9kXqyfiNg",
-   "fields": [
-    "chr1",
-    "34794607",
-    "34794608",
-    "C",
-    "T",
-    "1.7033527070697196",
-    "1",
-    "Benign",
-    ".",
-    "single_nucleotide_variant",
-    "1",
-    "SO:0001583|missense_variant",
-    ".",
-    "NC_000001.11:g.34794607C>T"
-   ],
-   "name": "C"
-  },
-  {
-   "xStart": 34794985,
-   "xEnd": 34794986,
-   "chrOffset": 0,
-   "importance": 1.8843572102297905,
-   "uid": "CcMd4wtrSuCxmWfTs-ugxA",
-   "fields": [
-    "chr1",
-    "34794985",
-    "34794986",
-    "C",
-    "T",
-    "1.8843572102297905",
-    "1",
-    "Benign",
-    ".",
-    "single_nucleotide_variant",
-    "1",
-    "SO:0001583|missense_variant",
-    ".",
-    "NC_000001.11:g.34794985C>T"
-   ],
-   "name": "C"
-  }
- ],
  "clinvar_20200824_v5.22.1980": [
   {
    "xStart": 2028260,

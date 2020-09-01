@@ -38,15 +38,16 @@ describe("SVG export", () => {
 
     it("tests that the export works and the data is correct", (done) => {
 
+      const trackObj = getTrackObjectFromHGC(
+        hgc.instance(),
+        viewConf.views[0].uid,
+        viewConf.views[0].tracks.top[0].uid
+      );
+
       setTimeout(() => {
         hgc.instance().handleExportSVG();
 
-        const trackObj = getTrackObjectFromHGC(
-          hgc.instance(),
-          viewConf.views[0].uid,
-          viewConf.views[0].tracks.top[0].uid
-        );
-  
+
         const tile = trackObj.visibleAndFetchedTiles()[0];
         
 
