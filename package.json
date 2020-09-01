@@ -77,9 +77,9 @@
     "mixin": "^0.2.0",
     "mixwith": "^0.1.1",
     "ndarray": "^1.0.18",
-    "react": "^16.4.2",
+    "react": "16.4.2",
     "react-bootstrap": "^0.32.4",
-    "react-dom": "^16.4.2",
+    "react-dom": "16.4.2",
     "sourcemap": "^0.1.0",
     "webpack": "^4.43.0"
   }

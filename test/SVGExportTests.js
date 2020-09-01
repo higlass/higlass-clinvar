@@ -47,16 +47,18 @@ describe("SVG export", () => {
 
     it("tests that the data is correct", (done) => {
 
-      const trackObj = getTrackObjectFromHGC(
-        hgc.instance(),
-        viewConf.views[0].uid,
-        viewConf.views[0].tracks.top[0].uid
-      );
-
-      const tile = trackObj.visibleAndFetchedTiles()[0];
       
 
       setTimeout(() => {
+
+        const trackObj = getTrackObjectFromHGC(
+          hgc.instance(),
+          viewConf.views[0].uid,
+          viewConf.views[0].tracks.top[0].uid
+        );
+  
+        const tile = trackObj.visibleAndFetchedTiles()[0];
+        
 
         expect(tile.svgData[0].posX).to.equal(505.55494416122536);
         expect(tile.svgData[0].posY).to.equal(96.5);
