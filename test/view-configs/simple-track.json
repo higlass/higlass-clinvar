@@ -10,39 +10,13 @@
       "tracks": {
         "top": [
           {
-            "type": "horizontal-orthologs",
-            "height": 100,
-            "tilesetUid": "transcripts_20200805",
+            "type": "horizontal-clinvar",
+            "height": 110,
+            "tilesetUid": "clinvar_20200824_v5",
             "server": "http://localhost:8001/api/v1",
-            "uid": "orthologs_20200805",
+            "uid": "clinvar_20200824_v5",
             "options": {
-              "rowHeight": 11,
-              "name": "Orthologs",
-              "labelTextColor": "#888888",
-              "aminoAcidColor": "#333333",
-              "aminoAcidColorNoMatch": "#b0b0b0",
-              "trackBorderColor": "white",
-              "backgroundColor": "white",
-              "fontSize": 10,
-              "fontFamily": "Arial",
-              "fontColor": "white",
-              "rowSpacing": 2,
-              "species": [
-                "human",
-                "macaca_mulatta",
-                "mouse",
-                "dog",
-                "elephant",
-                "chicken",
-                "zebrafish"
-              ],
-              "plusStrandColor1": "#ebebff",
-              "plusStrandColor2": "#dedeff",
-              "plusStrandColorDark": "#bdbfff",
-              "minusStrandColor1": "#ffe0e2",
-              "minusStrandColor2": "#fff0f1",
-              "minusStrandColorDark": "#fabec2",
-              "gapsColor": "#eb9c00"
+              "name": "Clinvar"
             }
           }
         ],
@@ -54,8 +28,8 @@
         "gallery": []
       },
       "initialXDomain": [
-        34795109.66133738,
-        34795152.46709586
+        2027616.1882798017,
+        2027647.1246295166
       ],
       "initialYDomain": [
         -2681066463.2434807,

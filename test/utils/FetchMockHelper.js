@@ -43,7 +43,7 @@ class FetchMockHelper {
     const response = await fetch(url, headers);
     let data;
 
-    if (headers.headers["Content-Type"] === "text/plain") {
+    if (headers.headers["Content-Type"] === "text/plain" || headers.headers["content-type"] === "text/plain") {
       data = response.text();
     } else {
       data = response.json();

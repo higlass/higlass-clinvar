@@ -36,11 +36,38 @@ describe("SVG export", () => {
       [div, hgc] = mountHGComponent(div, hgc, viewConf, done);
     });
 
-    it("tests that the export works", (done) => {
-      
+    it("tests that the export works and the data is correct", (done) => {
 
       setTimeout(() => {
         hgc.instance().handleExportSVG();
+        done();
+      }, 2000);
+      
+    });
+
+    it("tests that the data is correct", (done) => {
+
+      const trackObj = getTrackObjectFromHGC(
+        hgc.instance(),
+        viewConf.views[0].uid,
+        viewConf.views[0].tracks.top[0].uid
+      );
+
+      const tile = trackObj.visibleAndFetchedTiles()[0];
+      
+
+      setTimeout(() => {
+
+        expect(tile.svgData[0].posX).to.equal(505.55494416122536);
+        expect(tile.svgData[0].posY).to.equal(96.5);
+        expect(tile.svgData[0].yZero).to.equal(56);
+        expect(tile.svgData[0].color).to.equal('#999999');
+
+        expect(tile.svgData[9].posX).to.equal(306.4364296378897);
+        expect(tile.svgData[9].posY).to.equal(76.5);
+        expect(tile.svgData[9].yZero).to.equal(56);
+        expect(tile.svgData[9].color).to.equal('#009600');
+
 
         done();
       }, 2000);

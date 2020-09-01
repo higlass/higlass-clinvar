@@ -21,7 +21,7 @@ register({
   config: ClinvarTrack.config,
 });
 
-describe("Orthologs test", () => {
+describe("Clinvar test", () => {
   const fetchMockHelper = new FetchMockHelper("", "ClinvarTest");
 
   beforeAll(async () => {
@@ -44,13 +44,13 @@ describe("Orthologs test", () => {
         viewConf.views[0].tracks.top[0].uid
       );
 
-      const as = trackObj.activeSpecies;
-      expect(as.length).to.equal(7);
+      const sigLevels = trackObj.significanceLevels;
+      expect(Object.keys(sigLevels).length).to.equal(9);
 
       done();
     });
 
-    it("Test sequence data", (done) => {
+    it("Test clinvar data", (done) => {
 
       // We need to wait for Ensemble data
       setTimeout(() => {
@@ -62,51 +62,22 @@ describe("Orthologs test", () => {
   
         const tile = trackObj.visibleAndFetchedTiles()[0];
 
-        const humanSeqData = tile.sequenceData["human"];
-        const mouseSeqData = tile.sequenceData["mouse"];
+        const rects = tile.rectsForMouseOver;
+        console.log(rects[0])
+        const data = rects[0].data;
 
-        expect(humanSeqData.length).to.equal(mouseSeqData.length);
-
-        expect(humanSeqData[0].start).to.equal(34794495);
-        expect(humanSeqData[0].codonLength).to.equal(3);
-        expect(humanSeqData[0].strand).to.equal("+");
-        expect(humanSeqData[0].backgroundColor).to.equal(14606079);
-        expect(humanSeqData[0].backgroundColor).to.equal(mouseSeqData[0].backgroundColor);
-
-        expect(humanSeqData[1].start).to.equal(34794498);
-        expect(humanSeqData[1].codonLength).to.equal(mouseSeqData[1].codonLength);
-        expect(humanSeqData[1].backgroundColor).to.equal(15461375);
-        expect(humanSeqData[1].backgroundColor).to.equal(mouseSeqData[1].backgroundColor);
+        expect(data.chrom).to.equal('chr1');
+        expect(data.posRel).to.equal(2027636);
+        expect(data.ref).to.equal("A");
+        expect(data.alt).to.equal("C");
+        expect(data.significance).to.equal("risk_factor");
 
         done();
       }, 2000);
 
     });
 
-    it("Test gap data", (done) => {
-
-      // We need to wait for Ensemble data
-      setTimeout(() => {
-        const trackObj = getTrackObjectFromHGC(
-          hgc.instance(),
-          viewConf.views[0].uid,
-          viewConf.views[0].tracks.top[0].uid
-        );
-  
-        const tile = trackObj.visibleAndFetchedTiles()[0];
-
-        const gapsDataChicken = tile.gapsData['chicken'];
-        expect(gapsDataChicken[0].position).to.equal(34794942);
-        expect(gapsDataChicken[0].seq).to.equal("PVPV");
-
-        const gapsDataZebrafish = tile.gapsData['zebrafish'];
-        expect(gapsDataZebrafish[0].position).to.equal(34794528);
-        expect(gapsDataZebrafish[0].seq).to.equal("P");
-
-        done();
-      }, 2000);
-
-    });
+    
 
     afterAll(() => {
       removeHGComponent(div);

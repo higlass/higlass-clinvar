@@ -339,14 +339,6 @@ const ClinvarTrack = (HGC, ...args) => {
     drawTile(tile) {}
 
     renderTile(tile) {
-      //if (!tile || !tile.initialized) return;
-      // store the scale at while the tile was drawn at so that
-      // we only resize it when redrawing
-      //tile.drawnAtScale = this._xScale.copy();
-      //this.drawTileBackground(tile);
-      //this.drawLollipops(tile);
-      //console.log(tile)
-      //this.renderMask(tile);
     }
 
     draw() {
