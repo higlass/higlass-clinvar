@@ -44,13 +44,13 @@ describe("SVG export", () => {
       );
 
       setTimeout(() => {
-        hgc.instance().handleExportSVG();
+        //hgc.instance().handleExportSVG();
 
         const tile = trackObj.visibleAndFetchedTiles()[0];
 
         expect(tile.svgData[0].posX).to.equal(505.55494416122536);
-        // For some reason that's throwing an error on Travis
-        //expect(tile.svgData[0].posY).to.equal(96.5);
+
+        expect(tile.svgData[0].posY).to.equal(96.5);
         expect(tile.svgData[0].yZero).to.equal(56);
         expect(tile.svgData[0].color).to.equal("#999999");
 
