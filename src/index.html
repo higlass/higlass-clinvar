@@ -15,6 +15,7 @@
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.32.1/react-bootstrap.min.js"></script>
+  <script crossorigin src="https://unpkg.com/higlass-sequence/dist/higlass-sequence.js"></script>
 </head>
 <body>
 Higlass clinvar track
@@ -87,6 +88,51 @@ And some other text
             "height": 30
           },
           {
+            "uid": "fastaex",
+            "type": "horizontal-sequence",
+            "data": {
+              "type": "fasta",
+              "fastaUrl": "https://aveit.s3.amazonaws.com/higlass/data/sequence/hg38.fa",
+              "faiUrl": "https://aveit.s3.amazonaws.com/higlass/data/sequence/hg38.fa.fai",
+              "chromSizesUrl": "https://aveit.s3.amazonaws.com/higlass/data/sequence/hg38.mod.chrom.sizes"
+            },
+            "options": {
+              "colorAggregationMode": "none",
+              "labelPosition": "topLeft",
+              "labelColor": "black",
+              "labelTextOpacity": 0.4,
+              "valueScaling": "linear",
+              "trackBorderWidth": 0,
+              "trackBorderColor": "white",
+              "name": "hg38",
+              "backgroundColor": "white",
+              "barBorder": true,
+              "barBorderColor": "white",
+              "sortLargestOnTop": true,
+              "extendedPreloading": false,
+              "colorScale": [
+                "#007FFF",
+                "#e8e500",
+                "#008000",
+                "#FF0038",
+                "#800080",
+                "#DCDCDC"
+              ],
+              "notificationText": "Zoom in to see nucleotides...",
+              "fontSize": 16,
+              "fontFamily": "Arial",
+              "fontColor": "white",
+              "textOption": {
+                "fontSize": "32px",
+                "fontFamily": "Arial",
+                "fill": 16777215,
+                "fontWeight": "bold"
+              }
+            },
+            "width": 768,
+            "height": 25
+          },
+          {
             "type": "horizontal-clinvar",
             "height": 110,
             "tilesetUid": "clinvar_20200824_v5",
@@ -128,8 +174,8 @@ And some other text
         // 34795280.951759025
         // 34795109.66133738,
         // 34795152.46709586
-        2228856.9100408605,
-        2228876.9100408577
+        2027616.1882798017,
+        2027647.1246295166
       ],
       "initialYDomain": [
         -2681066463.2605443,

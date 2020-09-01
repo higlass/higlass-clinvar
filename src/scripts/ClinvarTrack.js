@@ -28,7 +28,6 @@ const ClinvarTrack = (HGC, ...args) => {
       this.offsetTop = 10;
 
       this.initSignificanceLevels();
-
     }
 
     initTile(tile) {
@@ -109,7 +108,6 @@ const ClinvarTrack = (HGC, ...args) => {
         if (index === 0) return;
 
         if (data.posAbs === clinVarDataSorted[index - 1].posAbs) {
-
           if (!entriesThatPotentiallyRequireShift[data.posAbs]) {
             entriesThatPotentiallyRequireShift[data.posAbs] = [];
             entriesThatPotentiallyRequireShift[data.posAbs].push({
@@ -149,7 +147,6 @@ const ClinvarTrack = (HGC, ...args) => {
             );
           });
         });
-
       });
 
       clinVarData.sort((a, b) => (a.drawOrder > b.drawOrder ? 1 : -1));
@@ -176,7 +173,8 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: 0 * this.options.levelDistance + this.offsetTop,
         label: "Pathogenic",
         labelVisible: true,
-        color: colorToHex(this.options.significanceColors["pathogenic"]),
+        color: this.options.significanceColors["pathogenic"],
+        colorHex: colorToHex(this.options.significanceColors["pathogenic"]),
         sprite: this.getLabelTextSprite("Pathogenic"),
         drawOrder: 1,
       };
@@ -185,7 +183,8 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: 0.5 * this.options.levelDistance + this.offsetTop,
         label: "Pathogenic / Likely pathogenic",
         labelVisible: false,
-        color: colorToHex(
+        color: this.options.significanceColors["pathogenic_likely_pathogenic"],
+        colorHex: colorToHex(
           this.options.significanceColors["pathogenic_likely_pathogenic"]
         ),
         sprite: this.getLabelTextSprite("Pathogenic / Likely pathogenic"),
@@ -196,7 +195,10 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: 1 * this.options.levelDistance + this.offsetTop,
         label: "Likely pathogenic",
         labelVisible: true,
-        color: colorToHex(this.options.significanceColors["likely_pathogenic"]),
+        color: this.options.significanceColors["likely_pathogenic"],
+        colorHex: colorToHex(
+          this.options.significanceColors["likely_pathogenic"]
+        ),
         sprite: this.getLabelTextSprite("Likely pathogenic"),
         drawOrder: 5,
       };
@@ -205,7 +207,8 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: 2 * this.options.levelDistance + this.offsetTop,
         label: "Uncertain significance",
         labelVisible: true,
-        color: colorToHex(
+        color: this.options.significanceColors["uncertain_significance"],
+        colorHex: colorToHex(
           this.options.significanceColors["uncertain_significance"]
         ),
         sprite: this.getLabelTextSprite("Uncertain significance"),
@@ -216,7 +219,8 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: 3 * this.options.levelDistance + this.offsetTop,
         label: "Likely benign",
         labelVisible: true,
-        color: colorToHex(this.options.significanceColors["likely_benign"]),
+        color: this.options.significanceColors["likely_benign"],
+        colorHex: colorToHex(this.options.significanceColors["likely_benign"]),
         sprite: this.getLabelTextSprite("Likely benign"),
         drawOrder: 6,
       };
@@ -225,7 +229,8 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: 3.5 * this.options.levelDistance + this.offsetTop,
         label: "Benign / Likely benign",
         labelVisible: false,
-        color: colorToHex(
+        color: this.options.significanceColors["benign_likely_benign"],
+        colorHex: colorToHex(
           this.options.significanceColors["benign_likely_benign"]
         ),
         sprite: this.getLabelTextSprite("Benign / Likely benign"),
@@ -236,7 +241,8 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: 4 * this.options.levelDistance + this.offsetTop,
         label: "Benign",
         labelVisible: true,
-        color: colorToHex(this.options.significanceColors["benign"]),
+        color: this.options.significanceColors["benign"],
+        colorHex: colorToHex(this.options.significanceColors["benign"]),
         sprite: this.getLabelTextSprite("Benign"),
         drawOrder: 2,
       };
@@ -245,7 +251,8 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: 4 * this.options.levelDistance + this.offsetTop,
         label: "Risk factor",
         labelVisible: false,
-        color: colorToHex(this.options.significanceColors["risk_factor"]),
+        color: this.options.significanceColors["risk_factor"],
+        colorHex: colorToHex(this.options.significanceColors["risk_factor"]),
         sprite: this.getLabelTextSprite("Risk factor"),
         drawOrder: 0,
       };
@@ -254,7 +261,8 @@ const ClinvarTrack = (HGC, ...args) => {
         offsetY: null,
         label: "Conflicting interpretations of pathogenicity",
         labelVisible: false,
-        color: colorToHex("#0000ff"),
+        color: "#0000ff",
+        colorHex: colorToHex("#0000ff"),
         sprite: this.getLabelTextSprite(
           "Conflicting interpretations of pathogenicity"
         ),
@@ -299,18 +307,15 @@ const ClinvarTrack = (HGC, ...args) => {
     rerender(options, force) {
       const strOptions = JSON.stringify(options);
       if (!force && strOptions === this.prevOptions) return;
+
       this.options = options;
       this.initOptions();
+      this.initSignificanceLevels();
 
       this.prevOptions = strOptions;
 
       this.drawLabels();
-
-      this.visibleAndFetchedTiles().forEach((tile) => {
-        this.renderTile(tile);
-      });
-
-      //this.draw();
+      this.draw();
     }
 
     // renderMask(tile) {
@@ -334,12 +339,10 @@ const ClinvarTrack = (HGC, ...args) => {
     drawTile(tile) {}
 
     renderTile(tile) {
-      if (!tile || !tile.initialized) return;
-
+      //if (!tile || !tile.initialized) return;
       // store the scale at while the tile was drawn at so that
       // we only resize it when redrawing
       //tile.drawnAtScale = this._xScale.copy();
-
       //this.drawTileBackground(tile);
       //this.drawLollipops(tile);
       //console.log(tile)
@@ -362,6 +365,7 @@ const ClinvarTrack = (HGC, ...args) => {
       tile.lollipopsGraphics.clear();
       tile.lollipopsGraphics.alpha = this.zoomLevel == this.maxZoom ? 1.0 : 0.5;
       tile.rectsForMouseOver = [];
+      tile.svgData = [];
 
       const slus = this.significanceLevels["uncertain_significance"];
       const yZero = slus.offsetY + slus.sprite.height / 2;
@@ -369,10 +373,9 @@ const ClinvarTrack = (HGC, ...args) => {
       const circleDiameter = 2 * circleRadius;
 
       tile.clinVarData.forEach((cvEntry) => {
-
         const sl = this.significanceLevels[cvEntry.significanceToBeDrawn];
-        tile.lollipopsGraphics.beginFill(sl.color);
-        const posX = this._xScale(cvEntry.posAbs);
+        tile.lollipopsGraphics.beginFill(sl.colorHex);
+        const posX = this._xScale(cvEntry.posAbs + 0.5); // We want to draw in the middle of a nucleatide
         const posXshifted = posX + cvEntry.horizontalShift * circleDiameter;
         const posY = sl.offsetY + sl.sprite.height / 2 + 0.5;
 
@@ -390,6 +393,12 @@ const ClinvarTrack = (HGC, ...args) => {
           ],
         });
 
+        tile.svgData.push({
+          posX: posXshifted,
+          posY: posY,
+          yZero: yZero,
+          color: sl.color,
+        });
       });
     }
 
@@ -417,7 +426,6 @@ const ClinvarTrack = (HGC, ...args) => {
     }
 
     drawLabels() {
-
       this.pForeground.clear();
       this.pForeground.removeChildren();
       let maxLabelWidth = 0;
@@ -460,7 +468,6 @@ const ClinvarTrack = (HGC, ...args) => {
     movedY(dY) {}
 
     getBoundsOfTile(tile) {
-
       // get the bounds of the tile
       const tileId = +tile.tileId.split(".")[1];
       const zoomLevel = +tile.tileId.split(".")[0]; //track.zoomLevel does not always seem to be up to date
@@ -517,21 +524,23 @@ const ClinvarTrack = (HGC, ...args) => {
       const point = [trackX, trackY];
 
       for (const tile of this.visibleAndFetchedTiles()) {
-
         for (let i = 0; i < tile.rectsForMouseOver.length; i++) {
           const rect = tile.rectsForMouseOver[i].rect;
           const data = tile.rectsForMouseOver[i].data;
           if (this.isPointInRectangle(rect, point)) {
             let goldStarString = "";
-            for(var i=0; i<data.goldStars; i++){
-              goldStarString += "<span style='color:#ebdc00'>&#9733;</span>"
+            for (var i = 0; i < data.goldStars; i++) {
+              goldStarString += "<span style='color:#ebdc00'>&#9733;</span>";
             }
-            for(var i=0; i<4-data.goldStars; i++){
-              goldStarString += "<span style='color:#bdbdbd'>&#9734;</span>"
+            for (var i = 0; i < 4 - data.goldStars; i++) {
+              goldStarString += "<span style='color:#bdbdbd'>&#9734;</span>";
             }
+            const posRel = data.posRel.toLocaleString("en-US", {
+              minimumFractionDigits: 0,
+            });
             return `
                 <div style='text-align: center'>
-                  <div><b>${data.chrom}:${data.posRel}</b></div>
+                  <div><b>${data.chrom}:${posRel}</b></div>
                   <div>${data.ref} &#8658; ${data.alt}</div>
                   <div>Clinvar review status: ${goldStarString}</div>
                   <div>Clinical significance: <b>${data.significanceDisplay}</b></div>
@@ -539,10 +548,7 @@ const ClinvarTrack = (HGC, ...args) => {
               `;
           }
         }
-
       }
-
-
     }
 
     exportSVG() {
@@ -593,6 +599,110 @@ const ClinvarTrack = (HGC, ...args) => {
 
       gClipPath.appendChild(output);
 
+      // Horizontal lines
+      Object.keys(this.significanceLevels).forEach((sl) => {
+        if (this.significanceLevels[sl].labelVisible) {
+          const g = document.createElement("g");
+          const t = document.createElement("line");
+          t.setAttribute("x1", 0);
+          t.setAttribute("x2", this.dimensions[0]);
+          t.setAttribute("y1", 0);
+          t.setAttribute("y2", 0);
+          t.setAttribute("stroke", this.options.labelTextColor);
+          t.setAttribute("stroke-width", 0.5);
+
+          g.setAttribute("transform", `scale(1,1)`);
+
+          const spHeight = this.significanceLevels[sl].sprite.height;
+
+          g.appendChild(t);
+          g.setAttribute(
+            "transform",
+            `translate(0,${
+              this.significanceLevels[sl].offsetY + spHeight / 2
+            })scale(1,1)`
+          );
+          output.appendChild(g);
+        }
+      });
+
+      // Labels
+      const totalHeight = 5 * this.options.levelDistance + 5;
+
+      let maxLabelWidth = 0;
+
+      Object.keys(this.significanceLevels).forEach((sl) => {
+        if (this.significanceLevels[sl].labelVisible) {
+          maxLabelWidth = Math.max(
+            maxLabelWidth,
+            this.significanceLevels[sl].sprite.width
+          );
+        }
+      });
+
+      // Lillipops
+      this.visibleAndFetchedTiles().forEach((tile) => {
+        tile.svgData.forEach((entry) => {
+          const g = document.createElement("g");
+          const t = document.createElement("circle");
+          t.setAttribute("cx", entry.posX);
+          t.setAttribute("cy", entry.posY);
+          t.setAttribute("r", 4);
+
+          g.setAttribute("transform", `scale(1,1)`);
+
+          t.setAttribute("fill", entry.color);
+          g.appendChild(t);
+
+          const l = document.createElement("line");
+          l.setAttribute("x1", entry.posX);
+          l.setAttribute("x2", entry.posX);
+          l.setAttribute("y1", entry.posY);
+          l.setAttribute("y2", entry.yZero);
+          l.setAttribute("stroke", entry.color);
+          l.setAttribute("stroke-width", 1);
+          g.appendChild(l);
+
+          output.appendChild(g);
+        });
+      });
+
+      const gLabelBackground = document.createElement("g");
+      const rLabelBackground = document.createElement("path");
+      const dLabelBackground = `M 0 0 H ${
+        maxLabelWidth + 3
+      } V ${totalHeight} H 0 Z`;
+      rLabelBackground.setAttribute("d", dLabelBackground);
+      rLabelBackground.setAttribute("fill", "white");
+      rLabelBackground.setAttribute("opacity", "1");
+      gLabelBackground.appendChild(rLabelBackground);
+      output.appendChild(gLabelBackground);
+
+      Object.keys(this.significanceLevels).forEach((sl) => {
+        if (this.significanceLevels[sl].labelVisible) {
+          const g = document.createElement("g");
+          const t = document.createElement("text");
+          t.setAttribute("text-anchor", "start");
+          t.setAttribute("font-family", this.options.fontFamily);
+          t.setAttribute("font-size", `${this.fontSize}px`);
+          //t.setAttribute("font-weight", "bold");
+
+          g.setAttribute("transform", `scale(1,1)`);
+
+          t.setAttribute("fill", this.options.labelTextColor);
+          t.innerHTML = this.significanceLevels[sl].label;
+
+          g.appendChild(t);
+          g.setAttribute(
+            "transform",
+            `translate(0,${
+              this.significanceLevels[sl].offsetY + this.offsetTop
+            })scale(1,1)`
+          );
+          output.appendChild(g);
+        }
+      });
+
       return [base, base];
     }
   }
@@ -629,7 +739,7 @@ ClinvarTrack.config = {
       likely_benign: "#009600",
       benign_likely_benign: "#00c900",
       benign: "#00ff00",
-      risk_factor: "#bdbdbd",
+      risk_factor: "#999999",
     },
   },
 };
