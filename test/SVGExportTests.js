@@ -40,16 +40,6 @@ describe("SVG export", () => {
 
       setTimeout(() => {
         hgc.instance().handleExportSVG();
-        done();
-      }, 2000);
-      
-    });
-
-    it("tests that the data is correct", (done) => {
-
-      
-
-      setTimeout(() => {
 
         const trackObj = getTrackObjectFromHGC(
           hgc.instance(),
@@ -75,6 +65,8 @@ describe("SVG export", () => {
       }, 2000);
       
     });
+
+    
 
     afterAll(() => {
       removeHGComponent(div);

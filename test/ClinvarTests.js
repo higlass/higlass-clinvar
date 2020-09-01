@@ -63,7 +63,7 @@ describe("Clinvar test", () => {
         const tile = trackObj.visibleAndFetchedTiles()[0];
 
         const rects = tile.rectsForMouseOver;
-        console.log(rects[0])
+
         const data = rects[0].data;
 
         expect(data.chrom).to.equal('chr1');
