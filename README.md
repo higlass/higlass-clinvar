@@ -4,7 +4,7 @@
 ![ClinVar](https://aveit.s3.amazonaws.com/higlass/static/higlass-clinvar-screenshot.png)
 
 
-**Note**: This is the source code for the orthologs track only! You might want to check out the following repositories as well:
+**Note**: This is the source code for the ClinVar track only! You might want to check out the following repositories as well:
 
 - HiGlass viewer: https://github.com/higlass/higlass
 - HiGlass server: https://github.com/higlass/higlass-server
