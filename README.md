@@ -88,7 +88,7 @@ Whenever there is a statement such as the following, assuming `higlass-clinvar` 
 import { ClinvarTrack } from 'higlass-clinvar';
 ```
 
-Then TranscriptsTrack would automatically be imported from the `./es` directory (set via package.json's `"module"` value). 
+Then ClinvarTrack would automatically be imported from the `./es` directory (set via package.json's `"module"` value). 
 
 ## Support
 
@@ -111,7 +111,7 @@ $ git clone https://github.com/higlass/higlass-clinvar.git
 $ cd higlass-clinvar
 $ npm install
 ```
-If you have a local copy of higlass, you can then run this command in the higlass-orthologs directory:
+If you have a local copy of higlass, you can then run this command in the higlass-clinvar directory:
 
 ```bash
 npm link higlass
