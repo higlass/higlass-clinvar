@@ -1,10 +1,10 @@
-import fetchMock from "fetch-mock";
+import fetchMock from 'fetch-mock';
 
 class FetchMockHelper {
   constructor(viewConf, testName) {
     this.checkViewConf(viewConf);
 
-    this.server = require("karma-server-side"); // eslint-disable-line
+    this.server = require('karma-server-side'); // eslint-disable-line
 
     fetchMock.config.fallbackToNetwork = false;
     fetchMock.config.warnOnFallback = false;
@@ -17,10 +17,10 @@ class FetchMockHelper {
 
   async getMockedData() {
     const mockedResponses = await this.server.run(this.testName, function (
-      testName
+      testName,
     ) {
       try {
-        const fs = serverRequire("fs-extra"); // eslint-disable-line
+        const fs = serverRequire('fs-extra'); // eslint-disable-line
         const path = `./test/mocked-responses/${testName}.json`;
 
         // Read currently available mocked responses
@@ -38,12 +38,15 @@ class FetchMockHelper {
 
   async getOriginalFetchResponse(url, headers) {
     // This basically disables fetch-moch, so that we can call the original fetch
-    fetchMock.config.fallbackToNetwork = "always";
+    fetchMock.config.fallbackToNetwork = 'always';
 
     const response = await fetch(url, headers);
     let data;
 
-    if (headers.headers["Content-Type"] === "text/plain" || headers.headers["content-type"] === "text/plain") {
+    if (
+      headers.headers['Content-Type'] === 'text/plain' ||
+      headers.headers['content-type'] === 'text/plain'
+    ) {
       data = response.text();
     } else {
       data = response.json();
@@ -67,7 +70,6 @@ class FetchMockHelper {
       // Check if all the requested data is already mocked
       let isAllDataMocked = true;
       requestIds.forEach((id) => {
-
         if (this.mockedData[id] === undefined) {
           isAllDataMocked = false;
         }
@@ -85,7 +87,7 @@ class FetchMockHelper {
         this.writeToFile = true;
         // If there is no mocked data, load from server (specified in viewConf)
         console.warn(
-          `Not all requests have been mocked. Loading ${url} from server.`
+          `Not all requests have been mocked. Loading ${url} from server.`,
         );
         data = await this.getOriginalFetchResponse(url, headers);
         this.addToMockedData(data, isTileData ? null : url, requestIds);
@@ -95,7 +97,6 @@ class FetchMockHelper {
   }
 
   addToMockedData(response, customId, requestIds) {
-
     if (customId === null) {
       // console.warn(ids);
       for (const id of requestIds) {
@@ -121,7 +122,7 @@ class FetchMockHelper {
         try {
           // If the test is run by Travis, don't write the file
           if (!process.env.TRAVIS) {
-            const fs = serverRequire("fs-extra"); // eslint-disable-line
+            const fs = serverRequire('fs-extra'); // eslint-disable-line
             const path = `./test/mocked-responses/${testName}.json`;
             fs.writeFileSync(path, data);
           }
@@ -129,13 +130,13 @@ class FetchMockHelper {
           return error;
         }
         return null;
-      }
+      },
     );
 
     if (response !== null) {
       console.error(
-        "Could not store mocked responses",
-        JSON.stringify(response)
+        'Could not store mocked responses',
+        JSON.stringify(response),
       );
     }
   }
@@ -146,17 +147,17 @@ class FetchMockHelper {
   }
 
   getRequestIds(url) {
-    const urlParts = url.split("?");
+    const urlParts = url.split('?');
 
     const isTileData =
-      url.includes("/tileset_info/") || url.includes("/tiles/");
+      url.includes('/tileset_info/') || url.includes('/tiles/');
     const tileIds = [];
 
     if (isTileData) {
       const params = new URLSearchParams(urlParts[1]);
 
       for (const p of params) {
-        if (p[0] === "d") {
+        if (p[0] === 'd') {
           tileIds.push(p[1]);
         }
       }
@@ -170,7 +171,7 @@ class FetchMockHelper {
   checkViewConf(viewConf) {
     if (JSON.stringify(viewConf).includes('"//')) {
       console.warn(
-        "Please use full URLs in your view config. // is not supported and might lead to errors."
+        'Please use full URLs in your view config. // is not supported and might lead to errors.',
       );
     }
   }

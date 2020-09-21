@@ -1,34 +1,34 @@
-import { expect } from "chai";
-import register from "higlass-register";
+import { expect } from 'chai';
+import register from 'higlass-register';
 
-import FetchMockHelper from "./utils/FetchMockHelper";
+import FetchMockHelper from './utils/FetchMockHelper';
 
-import { HiGlassComponent, getTrackObjectFromHGC } from "higlass";
+import { HiGlassComponent, getTrackObjectFromHGC } from 'higlass';
 
 import {
   waitForDataLoaded,
   mountHGComponent,
   removeHGComponent,
-} from "./utils/test-helpers";
+} from './utils/test-helpers';
 
-import viewConf from "./view-configs/simple-track";
+import viewConf from './view-configs/simple-track';
 
-import ClinvarTrack from "../src/scripts/ClinvarTrack";
+import ClinvarTrack from '../src/scripts/ClinvarTrack';
 
 register({
-  name: "ClinvarTrack",
+  name: 'ClinvarTrack',
   track: ClinvarTrack,
   config: ClinvarTrack.config,
 });
 
-describe("Clinvar test", () => {
-  const fetchMockHelper = new FetchMockHelper("", "ClinvarTest");
+describe('Clinvar test', () => {
+  const fetchMockHelper = new FetchMockHelper('', 'ClinvarTest');
 
   beforeAll(async () => {
     await fetchMockHelper.activateFetchMock();
   });
 
-  describe("Test that the data is correct", () => {
+  describe('Test that the data is correct', () => {
     let hgc = null;
     let div = null;
 
@@ -36,12 +36,11 @@ describe("Clinvar test", () => {
       [div, hgc] = mountHGComponent(div, hgc, viewConf, done);
     });
 
-    it("Test label data", (done) => {
-
+    it('Test label data', (done) => {
       const trackObj = getTrackObjectFromHGC(
         hgc.instance(),
         viewConf.views[0].uid,
-        viewConf.views[0].tracks.top[0].uid
+        viewConf.views[0].tracks.top[0].uid,
       );
 
       const sigLevels = trackObj.significanceLevels;
@@ -50,16 +49,15 @@ describe("Clinvar test", () => {
       done();
     });
 
-    it("Test clinvar data", (done) => {
-
+    it('Test clinvar data', (done) => {
       // We need to wait for Ensemble data
       setTimeout(() => {
         const trackObj = getTrackObjectFromHGC(
           hgc.instance(),
           viewConf.views[0].uid,
-          viewConf.views[0].tracks.top[0].uid
+          viewConf.views[0].tracks.top[0].uid,
         );
-  
+
         const tile = trackObj.visibleAndFetchedTiles()[0];
 
         const rects = tile.rectsForMouseOver;
@@ -68,16 +66,13 @@ describe("Clinvar test", () => {
 
         expect(data.chrom).to.equal('chr1');
         expect(data.posRel).to.equal(2027636);
-        expect(data.ref).to.equal("A");
-        expect(data.alt).to.equal("C");
-        expect(data.significance).to.equal("risk_factor");
+        expect(data.ref).to.equal('A');
+        expect(data.alt).to.equal('C');
+        expect(data.significance).to.equal('risk_factor');
 
         done();
       }, 2000);
-
     });
-
-    
 
     afterAll(() => {
       removeHGComponent(div);
