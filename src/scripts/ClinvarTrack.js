@@ -298,8 +298,6 @@ const ClinvarTrack = (HGC, ...args) => {
       };
     }
 
-    drawTile() {}
-
     /*
      * Redraw the track because the options
      * changed
@@ -318,24 +316,6 @@ const ClinvarTrack = (HGC, ...args) => {
       this.draw();
     }
 
-    // renderMask(tile) {
-    //   const { tileX, tileWidth } = trackUtils.getTilePosAndDimensions(
-    //     this.tilesetInfo,
-    //     tile.tileId
-    //   );
-
-    //   tile.rectMaskGraphics.clear();
-
-    //   const randomColor = Math.floor(Math.random() * 16 ** 6);
-    //   tile.rectMaskGraphics.beginFill(randomColor, 0.3);
-
-    //   const x = this._xScale(tileX);
-    //   const y = 0;
-    //   const width = this._xScale(tileX + tileWidth) - this._xScale(tileX);
-    //   const height = this.dimensions[1];
-    //   tile.rectMaskGraphics.drawRect(x, y, width, height);
-    // }
-
     drawTile(tile) {}
 
     renderTile(tile) {}
@@ -348,7 +328,6 @@ const ClinvarTrack = (HGC, ...args) => {
         this.drawLollipops(tile);
       });
 
-      //requestAnimationFrame(this.animate);
     }
 
     drawLollipops(tile) {
@@ -473,7 +452,6 @@ const ClinvarTrack = (HGC, ...args) => {
     destroyTile(tile) {
       tile.bgGraphics.destroy();
       tile.lollipopsGraphics.destroy();
-      //tile.rectMaskGraphics.destroy();
       tile.graphics.destroy();
       tile = null;
     }
