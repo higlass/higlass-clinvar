@@ -1,5 +1,5 @@
 
-**unreleased**
+**v0.2.0**
 
 - Use color-safe palette
 
