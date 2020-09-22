@@ -35,7 +35,7 @@ python manage.py ingest_tileset --filename data/clinvar_20200824.beddb --filetyp
 
 The live script can be found at:
 
-- https://unpkg.com/higlass-transcripts/dist/higlass-clinvar.js
+- https://unpkg.com/higlass-clinvar/dist/higlass-clinvar.js
 
 ### Client
 
