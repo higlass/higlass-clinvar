@@ -27,6 +27,8 @@ const ClinvarTrack = (HGC, ...args) => {
 
       this.offsetTop = 10;
 
+      this.tilesToDraw = [];
+
       this.initSignificanceLevels();
     }
 
@@ -314,16 +316,24 @@ const ClinvarTrack = (HGC, ...args) => {
 
       this.drawLabels();
       this.draw();
+
     }
 
     drawTile(tile) {}
 
-    renderTile(tile) {}
+    renderTile(tile) {
+      // We are storing the currently visible tiles here. These will be drawn,
+      // even if new tiles haven't finished loading => smoother scrolling
+      this.tilesToDraw = [];
+      this.visibleAndFetchedTiles().forEach((tile) => {
+        this.tilesToDraw.push(tile);
+      });
+    }
 
     draw() {
       this.zoomLevel = this.calculateZoomLevel();
 
-      this.visibleAndFetchedTiles().forEach((tile) => {
+      this.tilesToDraw.forEach((tile) => {
         this.drawTileBackground(tile);
         this.drawLollipops(tile);
       });
