@@ -55,9 +55,9 @@ The following options are available:
 ```
 {
   "server": "http://localhost:8001/api/v1",
-  "tilesetUid": "awesome_orthologs",
-  "uid": "awesome_orthologs_uid",
-  "type": "horizontal-orthologs",
+  "tilesetUid": "awesome_clinvar",
+  "uid": "awesome_clinvar_uid",
+  "type": "horizontal-clinvar",
   "options": {
     "fontSize": 10,
     "fontFamily": "Arial",
